@@ -15,7 +15,6 @@
             --btn-green: #44db5e;
             --btn-red: #ff3b30;
         }
-        /* 禁止頁面捲動與縮放 */
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; outline: none; touch-action: manipulation; }
         body { background-color: #000; display: flex; justify-content: center; align-items: center; height: 100dvh; overflow: hidden; font-family: 'ZCOOL KuaiLe', sans-serif; }
 
@@ -32,21 +31,28 @@
             padding: 8px; border-radius: 8px; background: #222; display: flex; flex-direction: column; position: relative;
         }
 
+        /* 螢幕變長：高度調整為 460px */
         .lcd-display {
-            background: var(--lcd-bg); width: 100%; height: 400px; position: relative;
+            background: var(--lcd-bg); width: 100%; height: 460px; position: relative;
             box-shadow: inset 4px 4px 12px rgba(0,0,0,0.4); border: 2px solid #7a8a64;
+            overflow: hidden;
         }
         canvas { width: 100%; height: 100%; image-rendering: pixelated; }
 
-        /* 控制區稍微縮小以適應 Chrome */
+        .stats-panel {
+            position: absolute; right: 10px; top: 10px; font-size: 13px; color: #1a1a1a;
+            text-align: right; font-weight: bold; line-height: 1.4; z-index: 10;
+        }
+
         .controller-section { 
             width: 100%; flex-grow: 1; display: grid; grid-template-columns: 1.1fr 0.9fr; 
-            padding: 10px; transform: scale(0.95); transform-origin: top;
+            padding: 10px; transform: scale(0.92); transform-origin: top;
         }
         
         .d-pad { 
-            display: grid; grid-template-columns: repeat(3, 60px); grid-template-rows: repeat(3, 60px); 
-            gap: 5px; align-self: center; justify-self: center;
+            display: grid; grid-template-columns: repeat(3, 62px); grid-template-rows: repeat(3, 62px); 
+            gap: 6px; align-self: center; justify-self: center;
+            margin-top: 10px;
         }
         .btn-blue {
             background: radial-gradient(circle, var(--btn-blue) 30%, var(--btn-blue-dark) 100%);
@@ -55,16 +61,16 @@
         .btn-blue:active { transform: translateY(3px); box-shadow: 0 2px 0 #0d2d42; }
 
         .action-pad { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px; }
-        .small-btns { display: flex; gap: 12px; }
-        .s-btn { width: 38px; height: 38px; border-radius: 50%; border: 3px solid #222; cursor: pointer; box-shadow: 0 3px 0 #333; }
+        .small-btns { display: flex; gap: 15px; }
+        .s-btn { width: 40px; height: 40px; border-radius: 50%; border: 3px solid #222; cursor: pointer; box-shadow: 0 4px 0 #333; }
         .btn-red { background: var(--btn-red); } .btn-green { background: var(--btn-green); }
 
         .rotate-btn {
-            width: 110px; height: 110px; border-radius: 50%;
+            width: 115px; height: 115px; border-radius: 50%;
             background: radial-gradient(circle, var(--btn-blue) 30%, var(--btn-blue-dark) 100%);
             border: 6px solid #154666; color: white; font-weight: bold; font-size: 20px; box-shadow: 0 7px 0 #0d2d42; cursor: pointer;
         }
-        .btn-label { font-size: 10px; color: #111; font-weight: bold; margin-top: 5px; text-align: center;}
+        .btn-label { font-size: 11px; color: #111; font-weight: bold; margin-top: 6px; text-align: center;}
 
         .ui-overlay { position: absolute; inset: 0; background: var(--lcd-bg); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 20; }
         .menu-btn { width: 180px; padding: 12px; margin: 8px; font-size: 18px; background: #333; color: #fff; border: none; border-radius: 10px; cursor: pointer; }
@@ -73,18 +79,20 @@
 </head>
 <body>
 
-<div class="game-console" id="console">
+<div class="game-console">
     <div class="header-title">▪ Darren 遊戲 ▪</div>
     <div class="screen-area">
         <div class="lcd-display">
             <div id="stats-ui" class="stats-panel hidden">
-                HI:<span id="hi">0</span> SCORE:<span id="sc">0</span> LIFE:<span id="lives">3</span>
+                HI:<span id="hi">0</span><br>
+                SCORE:<span id="sc">0</span><br>
+                LIFE:<span id="lives">3</span>
             </div>
             <div id="menu-ui" class="ui-overlay">
-                <h2 style="margin-bottom:20px; color:#222;">Darren 遊戲</h2>
+                <h2 style="margin-bottom:15px; color:#222;">Darren 遊戲</h2>
                 <button class="menu-btn" onclick="startGame('tetris')">經典俄羅斯</button>
                 <button class="menu-btn" style="background:#444" onclick="startGame('snake')">經典貪吃蛇</button>
-                <p style="font-size:10px; margin-top:10px; color:#555;">點擊按鈕將進入全螢幕</p>
+                <p style="font-size:10px; margin-top:8px; color:#444;">點擊按鈕自動全螢幕</p>
             </div>
             <canvas id="gc"></canvas>
         </div>
@@ -112,26 +120,21 @@
 </div>
 
 <script>
-    // 全螢幕觸發函數
     function toggleFullScreen() {
-        const doc = window.document;
-        const docEl = doc.documentElement;
-        const requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
-        if (requestFullScreen) {
-            requestFullScreen.call(docEl);
-        }
+        const docEl = window.document.documentElement;
+        const request = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
+        if (request) request.call(docEl);
     }
 
-    function startGame(mode) {
-        toggleFullScreen(); // 在點擊時進入全螢幕
-        initGame(mode);
+    function startGame(m) {
+        toggleFullScreen();
+        initGame(m);
     }
 
-    // --- 以下為原有的遊戲邏輯 (略作微調以適應佈局) ---
     const canvas = document.getElementById('gc');
     const ctx = canvas.getContext('2d');
     let gameLoop, mode, score=0, hiScore=0, lives=3, isPaused=false, speed=500;
-    const COLS = 10, ROWS = 18; 
+    const COLS = 10, ROWS = 20; // 增加行數配合長螢幕
     let board, cur, curP, curColor, snake, food, dir;
 
     const SHAPES = [
@@ -145,7 +148,7 @@
         mode = m;
         document.getElementById('menu-ui').classList.add('hidden');
         document.getElementById('stats-ui').classList.remove('hidden');
-        canvas.width = 300; canvas.height = 540; 
+        canvas.width = 300; canvas.height = 600; 
         lives = 3; score = 0;
         resetRound();
     }
@@ -153,7 +156,7 @@
     function resetRound() {
         isPaused = false;
         if(mode === 'tetris') { speed = 500; board = Array(ROWS).fill().map(()=>Array(COLS).fill(0)); newPiece(); }
-        else { speed = 180; snake = [{x:5, y:8}, {x:5, y:9}, {x:5, y:10}]; dir = {x:0, y:-1}; spawnFood(); }
+        else { speed = 180; snake = [{x:5, y:10}, {x:5, y:11}, {x:5, y:12}]; dir = {x:0, y:-1}; spawnFood(); }
         if(gameLoop) clearInterval(gameLoop);
         gameLoop = setInterval(update, speed);
         updateStats();
@@ -203,7 +206,7 @@
 
     function handleDeath() {
         lives--; updateStats();
-        if(lives > 0) { alert("Darren 加油！剩餘：" + lives); resetRound(); }
+        if(lives > 0) { alert("Darren 剩餘生命：" + lives); resetRound(); }
         else { alert("遊戲結束！"); location.reload(); }
     }
 
