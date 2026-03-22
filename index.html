@@ -3,14 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BRICK GAME - 網格增強版</title>
+    <title>Darren 遊戲</title>
     <link href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
     <style>
         :root {
             --case-yellow: #e4c541;
             --screen-frame: #000000;
             --lcd-bg: #9ead86;
-            --grid-line: rgba(0, 0, 0, 0.15); /* 網格線顏色 */
             --btn-blue: #4a90e2;
             --btn-blue-dark: #1c5980;
             --btn-green: #44db5e;
@@ -25,7 +24,7 @@
             display: flex; flex-direction: column; align-items: center;
             position: relative; box-shadow: inset 0 0 60px rgba(0,0,0,0.15);
         }
-        .header-title { margin-top: 15px; font-size: 20px; font-weight: bold; letter-spacing: 4px; color: #111; }
+        .header-title { margin-top: 15px; font-size: 22px; font-weight: bold; letter-spacing: 5px; color: #111; }
 
         .screen-area {
             width: 92%; margin-top: 10px; border: 12px solid var(--screen-frame);
@@ -35,7 +34,6 @@
         .lcd-display {
             background: var(--lcd-bg); width: 100%; height: 440px; position: relative;
             box-shadow: inset 4px 4px 12px rgba(0,0,0,0.4); border: 2px solid #7a8a64;
-            overflow: hidden;
         }
         canvas { width: 100%; height: 100%; image-rendering: pixelated; }
 
@@ -46,11 +44,10 @@
 
         .controller-section { width: 100%; flex-grow: 1; display: grid; grid-template-columns: 1.1fr 0.9fr; padding: 10px 15px; }
         
-        /* 十字鍵往下位移 */
         .d-pad { 
             display: grid; grid-template-columns: repeat(3, 65px); grid-template-rows: repeat(3, 65px); 
             gap: 6px; align-self: center; justify-self: center;
-            margin-top: 40px; 
+            margin-top: 45px; 
         }
         .btn-blue {
             background: radial-gradient(circle, var(--btn-blue) 30%, var(--btn-blue-dark) 100%);
@@ -68,8 +65,7 @@
             background: radial-gradient(circle, var(--btn-blue) 30%, var(--btn-blue-dark) 100%);
             border: 6px solid #154666; color: white; font-weight: bold; font-size: 22px; box-shadow: 0 8px 0 #0d2d42; cursor: pointer;
         }
-        .rotate-btn:active { transform: translateY(5px); box-shadow: 0 3px 0 #0d2d42; }
-        .btn-label { font-size: 11px; color: #111; font-weight: bold; margin-top: 6px; text-align: center;}
+        .btn-label { font-size: 11px; color: #111; font-weight: bold; margin-top: 10px; text-align: center;}
 
         .ui-overlay { position: absolute; inset: 0; background: var(--lcd-bg); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 20; }
         .menu-btn { width: 180px; padding: 15px; margin: 10px; font-size: 20px; background: #333; color: #fff; border: none; border-radius: 10px; cursor: pointer; }
@@ -79,7 +75,7 @@
 <body>
 
 <div class="game-console">
-    <div class="header-title">▪ ▪ ▪ ▪ BRICK GAME ▪ ▪ ▪ ▪</div>
+    <div class="header-title">▪ Darren 遊戲 ▪</div>
     <div class="screen-area">
         <div class="lcd-display">
             <div id="stats-ui" class="stats-panel hidden">
@@ -88,9 +84,9 @@
                 生命<br><span id="lives">3</span>
             </div>
             <div id="menu-ui" class="ui-overlay">
-                <h2 style="margin-bottom:20px; color:#222;">選擇遊戲</h2>
-                <button class="menu-btn" onclick="initGame('tetris')">俄羅斯方塊</button>
-                <button class="menu-btn" style="background:#444" onclick="initGame('snake')">貪吃蛇</button>
+                <h2 style="margin-bottom:20px; color:#222;">Darren 遊戲</h2>
+                <button class="menu-btn" onclick="initGame('tetris')">經典俄羅斯</button>
+                <button class="menu-btn" style="background:#444" onclick="initGame('snake')">經典貪吃蛇</button>
             </div>
             <canvas id="gc"></canvas>
         </div>
@@ -100,7 +96,7 @@
         <div class="d-pad">
             <div></div><button class="btn-blue" onclick="handleInput('up')"></button><div></div>
             <button class="btn-blue" onclick="handleInput('left')"></button>
-            <div style="display:flex; align-items:center; justify-content:center; color:#333; font-size:14px; font-weight:bold;">MOVE</div>
+            <div style="display:flex; align-items:center; justify-content:center; color:#333; font-size:12px; font-weight:bold;">MOVE</div>
             <button class="btn-blue" onclick="handleInput('right')"></button>
             <div></div><button class="btn-blue" onclick="handleInput('down')"></button><div></div>
         </div>
@@ -111,7 +107,7 @@
             </div>
             <div style="text-align:center">
                 <button class="rotate-btn" onclick="handleInput('rotate')">旋轉</button>
-                <div class="btn-label" style="margin-top:10px;">ROTATE</div>
+                <div class="btn-label">ROTATE</div>
             </div>
         </div>
     </div>
@@ -196,35 +192,28 @@
 
     function handleDeath() {
         lives--; updateStats();
-        if(lives > 0) { alert("扣除生命！剩餘：" + lives); resetRound(); }
-        else { alert("遊戲結束！最終得分：" + score); location.reload(); }
+        if(lives > 0) { alert("Darren 加油！剩餘生命：" + lives); resetRound(); }
+        else { alert("Darren 遊戲結束！最終得分：" + score); location.reload(); }
     }
 
     function draw() {
         ctx.clearRect(0,0,canvas.width,canvas.height);
         const bw = canvas.width / COLS, bh = canvas.height / ROWS;
 
-        // 1. 繪製輔助背景網格
-        ctx.strokeStyle = "rgba(0, 0, 0, 0.08)";
-        ctx.lineWidth = 1;
+        // 輔助網格
+        ctx.strokeStyle = "rgba(0, 0, 0, 0.1)";
         for(let x=0; x<=COLS; x++) { ctx.beginPath(); ctx.moveTo(x*bw, 0); ctx.lineTo(x*bw, canvas.height); ctx.stroke(); }
         for(let y=0; y<=ROWS; y++) { ctx.beginPath(); ctx.moveTo(0, y*bh); ctx.lineTo(canvas.width, y*bh); ctx.stroke(); }
 
-        // 2. 繪製遊戲內容
         if(mode === 'tetris') {
-            board.forEach((r,y)=>r.forEach((v,x)=>{ 
-                if(v){ drawBlock(x, y, v, bw, bh); } 
-            }));
-            cur.forEach((r,y)=>r.forEach((v,x)=>{ 
-                if(v){ drawBlock(curP.x+x, curP.y+y, curColor, bw, bh); } 
-            }));
+            board.forEach((r,y)=>r.forEach((v,x)=>{ if(v){ drawBlock(x, y, v, bw, bh); } }));
+            cur.forEach((r,y)=>r.forEach((v,x)=>{ if(v){ drawBlock(curP.x+x, curP.y+y, curColor, bw, bh); } }));
         } else {
             snake.forEach(s => drawBlock(s.x, s.y, "#222", bw, bh));
             drawBlock(food.x, food.y, "#ff3b30", bw, bh);
         }
     }
 
-    // 封裝方塊繪製，增加描邊效果
     function drawBlock(x, y, color, w, h) {
         ctx.fillStyle = color;
         ctx.fillRect(x*w + 1, y*h + 1, w - 2, h - 2);
