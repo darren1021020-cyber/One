@@ -6,268 +6,89 @@
     <title>Darren 遊戲</title>
     <link href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --case-yellow: #e4c541;
-            --screen-frame: #000000;
-            --lcd-bg: #9ead86;
-            --grid-line: rgba(0, 0, 0, 0.08);
-            --btn-blue: #4a90e2;
-            --btn-blue-dark: #1c5980;
-            --btn-green: #44db5e;
-            --btn-red: #ff3b30;
-        }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; outline: none; touch-action: manipulation; }
-        body { background-color: #000; display: flex; justify-content: center; align-items: center; height: 100dvh; overflow: hidden; font-family: 'ZCOOL KuaiLe', sans-serif; }
-
-        .game-console {
-            background-color: var(--case-yellow);
-            width: 100vw; max-width: 480px; height: 100dvh;
-            display: flex; flex-direction: column; align-items: center;
-            position: relative; box-shadow: inset 0 0 60px rgba(0,0,0,0.15);
-        }
-        .header-title { margin-top: 10px; font-size: 20px; font-weight: bold; letter-spacing: 5px; color: #111; }
-
-        .screen-area {
-            width: 90%; margin-top: 10px; border: 10px solid var(--screen-frame);
-            padding: 8px; border-radius: 8px; background: #222; display: flex; flex-direction: column; position: relative;
-        }
-
-        .lcd-display {
-            background: var(--lcd-bg); width: 100%; height: 460px; position: relative;
-            box-shadow: inset 4px 4px 12px rgba(0,0,0,0.4); border: 2px solid #7a8a64;
-            overflow: hidden;
-        }
+        :root { --case-yellow: #e4c541; --screen-frame: #000; --lcd-bg: #9ead86; --btn-blue: #4a90e2; --btn-blue-dark: #1c5980; --btn-red: #ff3b30; --btn-green: #44db5e; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; touch-action: manipulation; }
+        body { background: #000; display: flex; justify-content: center; align-items: center; height: 100dvh; overflow: hidden; font-family: 'ZCOOL KuaiLe', sans-serif; }
+        .game-console { background: var(--case-yellow); width: 100vw; max-width: 480px; height: 100dvh; display: flex; flex-direction: column; align-items: center; position: relative; }
+        .header-title { margin: 10px 0; font-size: 20px; font-weight: bold; letter-spacing: 5px; }
+        .screen-area { width: 90%; border: 10px solid var(--screen-frame); padding: 8px; border-radius: 8px; background: #222; }
+        .lcd-display { background: var(--lcd-bg); width: 100%; height: 460px; position: relative; box-shadow: inset 4px 4px 12px rgba(0,0,0,0.4); border: 2px solid #7a8a64; overflow: hidden; }
         canvas { width: 100%; height: 100%; image-rendering: pixelated; }
-
-        .stats-panel {
-            position: absolute; left: 10px; top: 10px; font-size: 13px; color: #1a1a1a;
-            text-align: left; font-weight: bold; line-height: 1.4; z-index: 10;
-        }
-
-        .controller-section { 
-            width: 100%; flex-grow: 1; display: grid; grid-template-columns: 1.1fr 0.9fr; 
-            padding: 10px; transform: scale(0.92); transform-origin: top;
-        }
-        
-        .d-pad { 
-            display: grid; grid-template-columns: repeat(3, 62px); grid-template-rows: repeat(3, 62px); 
-            gap: 6px; align-self: center; justify-self: center;
-        }
-        .btn-blue {
-            background: radial-gradient(circle, var(--btn-blue) 30%, var(--btn-blue-dark) 100%);
-            border-radius: 50%; border: 4px solid #154666; box-shadow: 0 5px 0 #0d2d42; cursor: pointer;
-        }
-        .btn-blue:active { transform: translateY(3px); box-shadow: 0 2px 0 #0d2d42; }
-
-        .action-pad { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px; }
-        .small-btns { display: flex; gap: 15px; }
-        .s-btn { width: 40px; height: 40px; border-radius: 50%; border: 3px solid #222; cursor: pointer; box-shadow: 0 4px 0 #333; }
-        .btn-red { background: var(--btn-red); } .btn-green { background: var(--btn-green); }
-
-        .rotate-btn {
-            width: 115px; height: 115px; border-radius: 50%;
-            background: radial-gradient(circle, var(--btn-blue) 30%, var(--btn-blue-dark) 100%);
-            border: 6px solid #154666; color: white; font-weight: bold; font-size: 20px; box-shadow: 0 7px 0 #0d2d42; cursor: pointer;
-        }
-        .btn-label { font-size: 11px; color: #111; font-weight: bold; margin-top: 6px; text-align: center;}
-
+        .stats { position: absolute; left: 10px; top: 10px; font-size: 13px; font-weight: bold; z-index: 10; line-height: 1.2; text-align: left;}
         .ui-overlay { position: absolute; inset: 0; background: var(--lcd-bg); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 20; }
         .menu-btn { width: 180px; padding: 12px; margin: 8px; font-size: 18px; background: #333; color: #fff; border: none; border-radius: 10px; cursor: pointer; }
+        .controller { width: 100%; flex-grow: 1; display: grid; grid-template-columns: 1.1fr 0.9fr; padding: 10px; transform: scale(0.9); transform-origin: top; }
+        .d-pad { display: grid; grid-template-columns: repeat(3, 62px); grid-template-rows: repeat(3, 62px); gap: 6px; justify-self: center; align-self: center; }
+        .btn-blue { background: radial-gradient(circle, var(--btn-blue) 30%, var(--btn-blue-dark) 100%); border-radius: 50%; border: 4px solid #154666; box-shadow: 0 5px 0 #0d2d42; cursor: pointer; }
+        .btn-blue:active { transform: translateY(3px); box-shadow: 0 2px 0 #0d2d42; }
+        .action-pad { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px; }
+        .rotate-btn { width: 110px; height: 110px; border-radius: 50%; background: radial-gradient(circle, var(--btn-blue) 30%, var(--btn-blue-dark) 100%); border: 6px solid #154666; color: #fff; font-size: 20px; box-shadow: 0 7px 0 #0d2d42; cursor: pointer; }
         .hidden { display: none !important; }
     </style>
 </head>
 <body>
-
 <div class="game-console">
     <div class="header-title">▪ Darren 遊戲 ▪</div>
     <div class="screen-area">
         <div class="lcd-display">
-            <div id="stats-ui" class="stats-panel hidden">
-                HI:<span id="hi">0</span><br>
-                SC:<span id="sc">0</span><br>
-                <span id="life-area">LIFE:<span id="lives">3</span></span>
-            </div>
-            <div id="msg-ui" class="ui-overlay hidden">
-                <h2 style="color:#222; margin-bottom:10px;">GAME OVER</h2>
-                <button class="menu-btn" onclick="location.reload()">回主選單</button>
-            </div>
+            <div id="stats-ui" class="stats hidden">HI:<span id="hi">0</span><br>SC:<span id="sc">0</span><br><span id="l-wrap">LIFE:<span id="lives">1</span></span></div>
             <div id="menu-ui" class="ui-overlay">
-                <h2 style="margin-bottom:15px; color:#222;">Darren 遊戲</h2>
+                <h2 style="margin-bottom:15px;">Darren 遊戲</h2>
                 <button class="menu-btn" onclick="startGame('tetris')">經典俄羅斯</button>
                 <button class="menu-btn" style="background:#444" onclick="startGame('snake')">經典貪吃蛇</button>
+            </div>
+            <div id="over-ui" class="ui-overlay hidden">
+                <h2 style="margin-bottom:10px;">GAME OVER</h2>
+                <button class="menu-btn" onclick="location.reload()">重新開始</button>
             </div>
             <canvas id="gc"></canvas>
         </div>
     </div>
-
-    <div class="controller-section">
+    <div class="controller">
         <div class="d-pad">
-            <div></div><button class="btn-blue" onclick="handleInput('up')"></button><div></div>
-            <button class="btn-blue" onclick="handleInput('left')"></button>
-            <div style="display:flex; align-items:center; justify-content:center; color:#333; font-size:10px; font-weight:bold;">MOVE</div>
-            <button class="btn-blue" onclick="handleInput('right')"></button>
-            <div></div><button class="btn-blue" onclick="handleInput('down')"></button><div></div>
+            <div></div><button class="btn-blue" onclick="handle('up')"></button><div></div>
+            <button class="btn-blue" onclick="handle('left')"></button><div style="text-align:center;font-size:10px;padding-top:20px;">MOVE</div><button class="btn-blue" onclick="handle('right')"></button>
+            <div></div><button class="btn-blue" onclick="handle('down')"></button><div></div>
         </div>
         <div class="action-pad">
-            <div class="small-btns">
-                <div style="text-align:center"><button class="s-btn btn-red" onclick="location.reload()"></button><div class="btn-label">重置</div></div>
-                <div style="text-align:center"><button class="s-btn btn-green" onclick="togglePause()"></button><div class="btn-label">暫停</div></div>
-            </div>
-            <div style="text-align:center">
-                <button class="rotate-btn" onclick="handleInput('rotate')">旋轉</button>
-                <div class="btn-label">ROTATE</div>
-            </div>
+            <div style="display:flex;gap:10px;"><button style="width:35px;height:35px;border-radius:50%;background:var(--btn-red);" onclick="location.reload()"></button><button style="width:35px;height:35px;border-radius:50%;background:var(--btn-green);" onclick="window.isPaused = !window.isPaused"></button></div>
+            <button class="rotate-btn" onclick="handle('rotate')">旋轉</button>
         </div>
     </div>
 </div>
-
 <script>
-    function toggleFullScreen() {
-        const docEl = window.document.documentElement;
-        const request = docEl.requestFullscreen || docEl.webkitRequestFullScreen || docEl.mozRequestFullScreen || docEl.msRequestFullscreen;
-        if (request) request.call(docEl);
+    const canvas=document.getElementById('gc'), ctx=canvas.getContext('2d');
+    let gameLoop, mode, score=0, hiScore=0, lives=1, board, cur, curP, curColor, snake, food, dir;
+    window.isPaused = false;
+    const COLS=10, ROWS=20, SHAPES=[{s:[[1,1,1,1]],c:'#2980b9'},{s:[[1,1],[1,1]],c:'#f1c40f'},{s:[[0,1,0],[1,1,1]],c:'#8e44ad'},{s:[[1,1,0],[0,1,1]],c:'#27ae60'},{s:[[0,1,1],[1,1,0]],c:'#e67e22'},{s:[[1,0,0],[1,1,1]],c:'#d35400'},{s:[[0,0,1],[1,1,1]],c:'#2c3e50'}];
+    function startGame(m){
+        const de=document.documentElement; if(de.requestFullscreen) de.requestFullscreen();
+        mode=m; document.getElementById('menu-ui').classList.add('hidden'); document.getElementById('stats-ui').classList.remove('hidden');
+        if(mode==='tetris') document.getElementById('l-wrap').classList.add('hidden');
+        canvas.width=300; canvas.height=600; lives=(mode==='tetris')?1:3; score=0; reset();
     }
-
-    function startGame(m) {
-        toggleFullScreen();
-        initGame(m);
+    function reset(){
+        window.isPaused=false; if(mode==='tetris'){ speed=500; board=Array(ROWS).fill().map(()=>Array(COLS).fill(0)); newP(); }
+        else { speed=180; snake=[{x:5,y:10},{x:5,y:11},{x:5,y:12}]; dir={x:0,y:-1}; spawnF(); }
+        if(gameLoop) clearInterval(gameLoop); gameLoop=setInterval(upd, speed); updateStats();
     }
-
-    const canvas = document.getElementById('gc');
-    const ctx = canvas.getContext('2d');
-    let gameLoop, mode, score=0, hiScore=0, lives=3, isPaused=false, speed=500;
-    const COLS = 10, ROWS = 20; 
-    let board, cur, curP, curColor, snake, food, dir;
-
-    const SHAPES = [
-        {s:[[1,1,1,1]], c:'#2980b9'}, {s:[[1,1],[1,1]], c:'#f1c40f'},
-        {s:[[0,1,0],[1,1,1]], c:'#8e44ad'}, {s:[[1,1,0],[0,1,1]], c:'#27ae60'},
-        {s:[[0,1,1],[1,1,0]], c:'#e67e22'},
-        {s:[[1,0,0],[1,1,1]], c:'#d35400'}, {s:[[0,0,1],[1,1,1]], c:'#2c3e50'}
-    ];
-
-    function initGame(m) {
-        mode = m;
-        document.getElementById('menu-ui').classList.add('hidden');
-        document.getElementById('stats-ui').classList.remove('hidden');
-        // 如果是俄羅斯方塊，隱藏生命值顯示（因為只有一命）
-        if(mode === 'tetris') {
-            document.getElementById('life-area').style.display = 'none';
-        }
-        canvas.width = 300; canvas.height = 600; 
-        lives = (mode === 'tetris') ? 1 : 3; 
-        score = 0;
-        resetRound();
+    function upd(){ if(window.isPaused) return; if(mode==='tetris') updT(); else updS(); draw(); }
+    function newP(){ const r=SHAPES[Math.floor(Math.random()*SHAPES.length)]; cur=r.s; curColor=r.c; curP={x:4,y:0}; if(coll()) die(); }
+    function coll(){ for(let y=0;y<cur.length;y++)for(let x=0;x<cur[y].length;x++) if(cur[y][x]&&(board[curP.y+y]===undefined||curP.x+x<0||curP.x+x>=COLS||board[curP.y+y][curP.x+x])) return true; return false; }
+    function updT(){ curP.y++; if(coll()){ curP.y--; freeze(); clear(); newP(); } }
+    function freeze(){ cur.forEach((r,y)=>r.forEach((v,x)=>{if(v)board[curP.y+y][curP.x+x]=curColor;})); }
+    function clear(){ for(let y=ROWS-1;y>=0;y--)if(board[y].every(v=>v!==0)){board.splice(y,1);board.unshift(Array(COLS).fill(0));score+=100;updateStats();y++;} }
+    function spawnF(){ food={x:Math.floor(Math.random()*COLS),y:Math.floor(Math.random()*ROWS)}; }
+    function updS(){ const h={x:snake[0].x+dir.x,y:snake[0].y+dir.y}; if(h.x<0||h.x>=COLS||h.y<0||h.y>=ROWS||snake.some(s=>s.x===h.x&&s.y===h.y))return die(); snake.unshift(h); if(h.x===food.x&&h.y===food.y){score+=10;updateStats();spawnF();} else snake.pop(); }
+    function die(){ lives--; updateStats(); clearInterval(gameLoop); if(lives>0) setTimeout(reset, 500); else document.getElementById('over-ui').classList.remove('hidden'); }
+    function draw(){
+        ctx.clearRect(0,0,300,600); ctx.strokeStyle='rgba(0,0,0,0.08)'; for(let i=0;i<=COLS;i++){ctx.beginPath();ctx.moveTo(i*30,0);ctx.lineTo(i*30,600);ctx.stroke();} for(let i=0;i<=ROWS;i++){ctx.beginPath();ctx.moveTo(0,i*30);ctx.lineTo(300,i*30);ctx.stroke();}
+        if(mode==='tetris'){ board.forEach((r,y)=>r.forEach((v,x)=>{if(v)blk(x,y,v);})); cur.forEach((r,y)=>r.forEach((v,x)=>{if(v)blk(curP.x+x,curP.y+y,curColor);})); }
+        else { snake.forEach(s=>blk(s.x,s.y,'#222')); blk(food.x,food.y,'#ff3b30'); }
     }
-
-    function resetRound() {
-        isPaused = false;
-        if(mode === 'tetris') { 
-            speed = 500; board = Array(ROWS).fill().map(()=>Array(COLS).fill(0)); newPiece(); 
-        } else { 
-            speed = 180; snake = [{x:5, y:10}, {x:5, y:11}, {x:5, y:12}]; dir = {x:0, y:-1}; spawnFood(); 
-        }
-        if(gameLoop) clearInterval(gameLoop);
-        gameLoop = setInterval(update, speed);
-        updateStats();
-    }
-
-    function update() {
-        if(isPaused) return;
-        if(mode === 'tetris') updateTetris();
-        else updateSnake();
-    }
-
-    function newPiece() {
-        const r = SHAPES[Math.floor(Math.random()*SHAPES.length)];
-        cur = r.s; curColor = r.c; curP = {x:Math.floor(COLS/2)-1, y:0};
-        if(collide()) handleDeath();
-    }
-
-    function collide() {
-        for(let y=0; y<cur.length; y++) for(let x=0; x<cur[y].length; x++)
-        if(cur[y][x] && (board[curP.y+y] === undefined || curP.x+x < 0 || curP.x+x >= COLS || board[curP.y+y][curP.x+x])) return true;
-        return false;
-    }
-
-    function updateTetris() {
-        curP.y++;
-        if(collide()) { curP.y--; freeze(); clearLines(); newPiece(); }
-        draw();
-    }
-
-    function freeze() { cur.forEach((r,y)=>r.forEach((v,x)=>{ if(v) board[curP.y+y][curP.x+x]=curColor; })); }
-
-    function clearLines() {
-        for(let y=board.length-1; y>=0; y--) if(board[y].every(v=>v!==0)) { board.splice(y,1); board.unshift(Array(COLS).fill(0)); score+=100; updateStats(); y++; }
-    }
-
-    function spawnFood() { food = {x: Math.floor(Math.random()*COLS), y: Math.floor(Math.random()*ROWS)}; }
-
-    function updateSnake() {
-        const head = {x: snake[0].x + dir.x, y: snake[0].y + dir.y};
-        if(head.x<0 || head.x>=COLS || head.y<0 || head.y>=ROWS || snake.some(s=>s.x===head.x && s.y===head.y)) return handleDeath();
-        snake.unshift(head);
-        if(head.x === food.x && head.y === food.y) { score+=10; updateStats(); spawnFood(); }
-        else snake.pop();
-        draw();
-    }
-
-    function handleDeath() {
-        lives--; 
-        updateStats();
-        clearInterval(gameLoop);
-        if(lives > 0 && mode === 'snake') {
-            setTimeout(resetRound, 500); 
-        } else {
-            // 俄羅斯方塊或生命耗盡，直接結束
-            document.getElementById('msg-ui').classList.remove('hidden');
-        }
-    }
-
-    function draw() {
-        ctx.clearRect(0,0,canvas.width,canvas.height);
-        const bw = canvas.width / COLS, bh = canvas.height / ROWS;
-        ctx.strokeStyle = var('--grid-line');
-        for(let x=0; x<=COLS; x++) { ctx.beginPath(); ctx.moveTo(x*bw, 0); ctx.lineTo(x*bw, canvas.height); ctx.stroke(); }
-        for(let y=0; y<=ROWS; y++) { ctx.beginPath(); ctx.moveTo(0, y*bh); ctx.lineTo(canvas.width, y*bh); ctx.stroke(); }
-        if(mode === 'tetris') {
-            board.forEach((r,y)=>r.forEach((v,x)=>{ if(v) drawBlock(x,y,v,bw,bh); }));
-            cur.forEach((r,y)=>r.forEach((v,x)=>{ if(v) drawBlock(curP.x+x, curP.y+y, curColor, bw, bh); }));
-        } else {
-            snake.forEach(s => drawBlock(s.x, s.y, "#222", bw, bh));
-            drawBlock(food.x, food.y, "#ff3b30", bw, bh);
-        }
-    }
-
-    function drawBlock(x,y,c,w,h) {
-        ctx.fillStyle=c; ctx.fillRect(x*w+1,y*h+1,w-2,h-2);
-        ctx.strokeStyle="rgba(255,255,255,0.2)"; ctx.strokeRect(x*w+1,y*h+1,w-2,h-2);
-    }
-
-    function handleInput(key) {
-        if(isPaused || lives <= 0) return;
-        if(mode === 'tetris') {
-            if(key==='left'){ curP.x--; if(collide())curP.x++; }
-            if(key==='right'){ curP.x++; if(collide())curP.x--; }
-            if(key==='down'){ curP.y++; if(collide())curP.y--; }
-            if(key==='rotate'||key==='up'){ let n=cur[0].map((_,i)=>cur.map(r=>r[i]).reverse()); let p=cur; cur=n; if(collide())cur=p; }
-        } else {
-            if(key==='up' && dir.y===0) dir = {x:0, y:-1};
-            if(key==='down' && dir.y===0) dir = {x:0, y:1};
-            if(key==='left' && dir.x===0) dir = {x:-1, y:0};
-            if(key==='right' && dir.x===0) dir = {x:1, y:0};
-        }
-        draw();
-    }
-
-    function togglePause() { isPaused = !isPaused; }
-    function updateStats() {
-        document.getElementById('sc').innerText = score;
-        document.getElementById('lives').innerText = (lives < 0) ? 0 : lives;
-        if(score > hiScore) hiScore = score;
-        document.getElementById('hi').innerText = hiScore;
-    }
+    function blk(x,y,c){ ctx.fillStyle=c; ctx.fillRect(x*30+1,y*30+1,28,28); ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.strokeRect(x*30+1,y*30+1,28,28); }
+    function handle(k){ if(window.isPaused||lives<=0)return; if(mode==='tetris'){ if(k==='left'){curP.x--;if(coll())curP.x++;} if(k==='right'){curP.x++;if(coll())curP.x--;} if(k==='down'){curP.y++;if(coll())curP.y--;} if(k==='rotate'||k==='up'){let n=cur[0].map((_,i)=>cur.map(r=>r[i]).reverse());let p=cur;cur=n;if(coll())cur=p;} } else { if(k==='up'&&dir.y===0)dir={x:0,y:-1}; if(k==='down'&&dir.y===0)dir={x:0,y:1}; if(k==='left'&&dir.x===0)dir={x:-1,y:0}; if(k==='right'&&dir.x===0)dir={x:1,y:0}; } draw(); }
+    function updateStats(){ document.getElementById('sc').innerText=score; document.getElementById('lives').innerText=lives; if(score>hiScore)hiScore=score; document.getElementById('hi').innerText=hiScore; }
 </script>
 </body>
 </html>
