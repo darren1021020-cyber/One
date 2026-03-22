@@ -3,131 +3,258 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>我的遊戲大廳</title>
+    <title>黃色復古遊戲機</title>
     <meta name="google-site-verification" content="o2tujYDnPtgd0de1_45C6pm8zcjVuLcJxUBz19kvVUc" />
+    <link href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
     <style>
-        body { text-align: center; background-color: #222; color: white; font-family: sans-serif; margin: 0; padding: 10px; overflow-x: hidden; }
-        #game-ui { height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        #menu { display: none; flex-direction: column; gap: 20px; align-items: center; padding-top: 50px; }
-        canvas { background: #000; display: block; margin: 10px auto; border: 4px solid #555; max-width: 90vw; height: auto; touch-action: none; }
-        .stats { font-size: 18px; margin-bottom: 10px; }
-        .controls { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 210px; margin: 15px auto; }
-        button { padding: 15px; font-size: 18px; cursor: pointer; border-radius: 8px; border: none; background: #444; color: white; touch-action: manipulation; }
-        .btn-game { background: #3498db; width: 200px; font-size: 20px; }
-        .btn-nav { background: #555; width: 80px; font-size: 14px; margin: 5px; }
-        #game-area { display: none; }
+        body {
+            text-align: center; background-color: #1a1a1a; color: #eee;
+            font-family: 'ZCOOL KuaiLe', sans-serif; margin: 0; padding: 10px;
+            display: flex; flex-direction: column; align-items: center; min-height: 100vh;
+        }
+
+        .game-wrapper {
+            background-color: #333; border: 8px solid #ffcc00; border-radius: 40px;
+            box-shadow: 0 0 25px rgba(255, 204, 0, 0.4); padding: 20px;
+            max-width: 400px; width: 90%; display: flex; flex-direction: column; align-items: center;
+        }
+
+        .screen { display: none; width: 100%; flex-direction: column; align-items: center; }
+        #welcome { display: flex; }
+
+        canvas {
+            background: #000; border: 4px solid #ffcc00; box-shadow: 0 0 15px #ffcc00;
+            max-width: 100%; height: auto; display: block; margin: 10px auto; border-radius: 10px;
+        }
+
+        /* 蘑菇頭搖桿 */
+        #joystick-container {
+            width: 140px; height: 140px; background: #444; border-radius: 50%;
+            margin: 15px auto; position: relative; border: 4px solid #666; touch-action: none;
+        }
+        #joystick-stick {
+            width: 60px; height: 60px; background: #ffcc00; border-radius: 50%;
+            position: absolute; top: 40px; left: 40px; border: 2px solid #ccaa00;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5), inset 0 0 10px white;
+        }
+
+        /* 十字按鍵 */
+        .grid-controls {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+            width: 220px; margin: 15px auto;
+        }
+
+        .ctrl-btn {
+            padding: 20px; background: #444; border-radius: 10px; font-size: 1.2em;
+            color: #ffcc00; border: 3px solid #666; box-shadow: 0 4px 0 #222; font-family: inherit;
+        }
+        .ctrl-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #222; }
+
+        .slider-container { width: 85%; color: #ffcc00; font-size: 0.9em; margin: 10px 0; }
+        input[type=range] { width: 100%; accent-color: #ffcc00; }
+
+        .btn {
+            padding: 12px 20px; font-size: 1em; margin: 5px; cursor: pointer;
+            border-radius: 10px; border: 3px solid #ffcc00; background: #ffcc00;
+            color: #1a1a1a; font-family: inherit;
+        }
+        .btn-red { background: #e74c3c; border-color: #c0392b; color: white; }
+
+        .stats { font-size: 0.9em; margin-bottom: 10px; color: #ffcc00; }
     </style>
 </head>
 <body>
 
-    <div id="game-ui">
-        <h1>你好！歡迎來到我的網頁</h1>
-        <p>載入中...</p>
-    </div>
-
-    <div id="menu">
-        <h2>請選擇遊戲</h2>
-        <button class="btn-game" onclick="selectGame('snake')">貪吃蛇</button>
-        <button class="btn-game" onclick="selectGame('tetris')" style="background:#e67e22">俄羅斯方塊</button>
-    </div>
-
-    <div id="game-area">
-        <div class="stats">
-            遊戲: <span id="game-name"></span> | 分數: <b id="score">0</b> | 生命: <b id="lives" style="color:red;">3</b>
-        </div>
-        
-        <canvas id="gc"></canvas>
-
-        <div class="controls" id="snake-ctrls">
-            <button style="grid-column:2" onclick="handleInput('up')">↑</button>
-            <button style="grid-column:1" onclick="handleInput('left')">←</button>
-            <button style="grid-column:3" onclick="handleInput('right')">→</button>
-            <button style="grid-column:2" onclick="handleInput('down')">↓</button>
+    <div class="game-wrapper">
+        <div id="welcome" class="screen">
+            <h2 style="color:#ffcc00">我的遊戲機</h2>
+            <p>載入中...</p>
         </div>
 
-        <div class="controls" id="tetris-ctrls" style="display:none;">
-            <button onclick="handleInput('left')">←</button>
-            <button onclick="handleInput('rotate')">旋轉</button>
-            <button onclick="handleInput('right')">→</button>
-            <button style="grid-column:2" onclick="handleInput('down')">↓</button>
+        <div id="menu" class="screen">
+            <h2>遊戲選單</h2>
+            <button class="btn" onclick="startSnake()">貪吃蛇</button>
+            <button class="btn" onclick="startTetris()" style="background:#f39c12; border-color:#d35400;">俄羅斯方塊</button>
         </div>
 
-        <div>
-            <button class="btn-nav" onclick="togglePause()">暫停</button>
-            <button class="btn-nav" onclick="location.reload()">回選單</button>
+        <div id="game-area" class="screen">
+            <div class="stats">得分:<span id="score">0</span> | 生命:<span id="lives">3</span></div>
+            <canvas id="gc"></canvas>
+
+            <div id="snake-ctrl-set" style="display:none; width:100%">
+                <div class="slider-container">
+                    <span>移動速度: </span><b id="speed-val">適中</b>
+                    <input type="range" min="50" max="400" value="200" step="50" oninput="changeSpeed(this.value)">
+                </div>
+                <div id="joystick-container">
+                    <div id="joystick-stick"></div>
+                </div>
+                <p style="font-size:0.7em; color:#888;">滑動蘑菇頭控制方向</p>
+            </div>
+
+            <div id="tetris-ctrl-set" class="grid-controls" style="display:none">
+                <button style="grid-column:2" class="ctrl-btn" onclick="handleInput('up')">旋轉</button>
+                <button style="grid-column:1" class="ctrl-btn" onclick="handleInput('left')">←</button>
+                <button style="grid-column:3" class="ctrl-btn" onclick="handleInput('right')">→</button>
+                <button style="grid-column:2" class="ctrl-btn" onclick="handleInput('down')">↓</button>
+            </div>
+
+            <button class="btn btn-red" onclick="location.reload()">回主選單</button>
         </div>
     </div>
 
     <script>
-        let canvas = document.getElementById("gc");
-        let ctx = canvas.getContext("2d");
-        let score = 0, lives = 3, paused = false, currentGame = '';
-        let gameLoop;
+        const canvas = document.getElementById('gc');
+        const ctx = canvas.getContext('2d');
+        let gameInterval, score=0, lives=3, mode='', snakeSpeed=200;
 
-        // --- 初始邏輯 ---
-        setTimeout(() => {
-            document.getElementById('game-ui').style.display = 'none';
-            document.getElementById('menu').style.display = 'flex';
+        setTimeout(() => { 
+            document.getElementById('welcome').style.display = 'none'; 
+            document.getElementById('menu').style.display = 'flex'; 
         }, 1000);
 
-        function selectGame(game) {
+        function showGame(gameMode) {
+            mode = gameMode;
             document.getElementById('menu').style.display = 'none';
-            document.getElementById('game-area').style.display = 'block';
-            currentGame = game;
-            score = 0; lives = 3; paused = false;
+            document.getElementById('game-area').style.display = 'flex';
+            document.getElementById('snake-ctrl-set').style.display = (mode==='snake') ? 'block' : 'none';
+            document.getElementById('tetris-ctrl-set').style.display = (mode==='tetris') ? 'grid' : 'none';
+            score = 0; lives = 3; updateStats();
+        }
+
+        function updateStats() {
             document.getElementById('score').innerText = score;
             document.getElementById('lives').innerText = lives;
+        }
+
+        function changeSpeed(val) {
+            snakeSpeed = parseInt(val);
+            const label = document.getElementById('speed-val');
+            if(val <= 100) label.innerText = "極快";
+            else if(val <= 200) label.innerText = "適中";
+            else label.innerText = "較慢";
             
-            if(game === 'snake') {
-                document.getElementById('game-name').innerText = '貪吃蛇';
-                document.getElementById('snake-ctrls').style.display = 'grid';
-                document.getElementById('tetris-ctrls').style.display = 'none';
-                initSnake();
-            } else {
-                document.getElementById('game-name').innerText = '俄羅斯方塊';
-                document.getElementById('snake-ctrls').style.display = 'none';
-                document.getElementById('tetris-ctrls').style.display = 'grid';
-                initTetris();
+            if(mode === 'snake' && gameInterval) {
+                clearInterval(gameInterval);
+                gameInterval = setInterval(updateSnake, snakeSpeed);
             }
         }
 
-        // --- 共通控制 ---
+        // --- 蘑菇頭邏輯 ---
+        const stick = document.getElementById('joystick-stick');
+        const container = document.getElementById('joystick-container');
+        let startX, startY;
+
+        container.addEventListener('touchstart', (e) => {
+            startX = e.touches[0].clientX; startY = e.touches[0].clientY;
+        });
+
+        container.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            let moveX = e.touches[0].clientX - startX;
+            let moveY = e.touches[0].clientY - startY;
+            const limit = 40;
+            const dist = Math.sqrt(moveX*moveX + moveY*moveY);
+            if (dist > limit) { moveX *= limit / dist; moveY *= limit / dist; }
+            stick.style.transform = `translate(${moveX}px, ${moveY}px)`;
+
+            if (Math.abs(moveX) > Math.abs(moveY)) {
+                if (moveX > 15) handleInput('right'); else if (moveX < -15) handleInput('left');
+            } else {
+                if (moveY > 15) handleInput('down'); else if (moveY < -15) handleInput('up');
+            }
+        });
+
+        container.addEventListener('touchend', () => { stick.style.transform = `translate(0px, 0px)`; });
+
         function handleInput(dir) {
-            if(paused) return;
-            if(currentGame === 'snake') snakeInput(dir);
-            else tetrisInput(dir);
-        }
-
-        function togglePause() { paused = !paused; }
-
-        function die(msg) {
-            lives--;
-            document.getElementById('lives').innerText = lives;
-            if(lives <= 0) {
-                alert("遊戲結束！最終分數: " + score);
-                location.reload();
+            if(mode === 'snake') {
+                if(dir==='up' && yv!=1) {xv=0;yv=-1;}
+                if(dir==='down' && yv!=-1) {xv=0;yv=1;}
+                if(dir==='left' && xv!=1) {xv=-1;yv=0;}
+                if(dir==='right' && xv!=-1) {xv=1;yv=0;}
             } else {
-                alert(msg + " 剩餘生命: " + lives);
-                if(currentGame === 'snake') resetSnake();
-                else resetTetris();
+                if(dir==='left') {curP.x--; if(collide()) curP.x++;}
+                if(dir==='right') {curP.x++; if(collide()) curP.x--;}
+                if(dir==='down') {curP.y++; if(collide()) curP.y--;}
+                if(dir==='up') {
+                    let n=cur[0].map((_,i)=>cur.map(r=>r[i]).reverse());
+                    let p=cur; cur=n; if(collide()) cur=p;
+                }
+                drawTetris();
             }
         }
 
-        // ================= 貪吃蛇邏輯 =================
-        let px, py, xv, yv, trail, tail;
-        const gs = 20, tc = 20;
-
-        function initSnake() {
+        // --- 貪吃蛇 ---
+        let px, py, xv, yv, trail, tail, ax, ay;
+        function startSnake() {
+            showGame('snake');
             canvas.width = canvas.height = 400;
             resetSnake();
-            if(gameLoop) clearInterval(gameLoop);
-            gameLoop = setInterval(updateSnake, 1000/10);
+            if(gameInterval) clearInterval(gameInterval);
+            gameInterval = setInterval(updateSnake, snakeSpeed);
         }
-
-        function resetSnake() {
-            px=10; py=10; xv=0; yv=0; trail=[]; tail=5;
-            ax=15; ay=15;
-        }
-
+        function resetSnake() { px=10; py=10; xv=0; yv=0; trail=[]; tail=5; ax=15; ay=15; }
         function updateSnake() {
-            if(paused) return;
+            px+=xv; py+=yv;
+            if(px<0 || px>19 || py<0 || py>19) return die("撞牆了！");
+            ctx.fillStyle="black"; ctx.fillRect(0,0,400,400);
+            ctx.fillStyle="#ffcc00"; 
+            for(let i=0; i<trail.length; i++) {
+                ctx.fillRect(trail[i].x*20, trail[i].y*20, 18, 18);
+                if(trail[i].x==px && trail[i].y==py && (xv!=0||yv!=0)) return die("吃到自己！");
+            }
+            trail.push({x:px, y:py});
+            while(trail.length>tail) trail.shift();
+            if(px==ax && py==ay) { tail++; score++; updateStats(); ax=Math.floor(Math.random()*20); ay=Math.floor(Math.random()*20); }
+            ctx.fillStyle="red"; ctx.fillRect(ax*20, ay*20, 18, 18);
+        }
+
+        // --- 俄羅斯方塊 ---
+        let board, cur, curP, curColor;
+        const SHAPES = [
+            { s: [[1,1,1,1]], c: '#00f0f0' }, { s: [[1,1],[1,1]], c: '#f0f000' },
+            { s: [[0,1,0],[1,1,1]], c: '#a000f0' }, { s: [[1,1,0],[0,1,1]], c: '#00f000' },
+            { s: [[0,1,1],[1,1,0]], c: '#f00000' }, { s: [[1,0,0],[1,1,1]], c: '#0000f0' },
+            { s: [[0,0,1],[1,1,1]], c: '#f0a000' }
+        ];
+        function startTetris() {
+            showGame('tetris');
+            canvas.width = 200; canvas.height = 400;
+            board = Array(20).fill().map(()=>Array(10).fill(0));
+            newPiece();
+            if(gameInterval) clearInterval(gameInterval);
+            gameInterval = setInterval(updateTetris, 500);
+        }
+        function newPiece() {
+            const r = SHAPES[Math.floor(Math.random()*SHAPES.length)];
+            cur = r.s; curColor = r.c; curP = {x: 3, y: 0};
+            if(collide()) { lives--; updateStats(); if(lives<=0){alert("遊戲結束");location.reload();} else board=Array(20).fill().map(()=>Array(10).fill(0)); }
+        }
+        function collide() {
+            for(let y=0;y<cur.length;y++)for(let x=0;x<cur[y].length;x++)
+            if(cur[y][x]&&(board[curP.y+y]===undefined||curP.x+x<0||curP.x+x>=10||(curP.y+y>=0&&board[curP.y+y][curP.x+x]))) return true;
+            return false;
+        }
+        function updateTetris() {
+            curP.y++; if(collide()){ curP.y--; freeze(); clearLines(); newPiece(); }
+            drawTetris();
+        }
+        function freeze() { cur.forEach((r,y)=>r.forEach((v,x)=>{ if(v) board[curP.y+y][curP.x+x] = curColor; })); }
+        function clearLines() {
+            for(let y=19;y>=0;y--) if(board[y].every(v=>v!==0)){ board.splice(y,1); board.unshift(Array(10).fill(0)); score+=10; updateStats(); y++; }
+        }
+        function drawTetris() {
+            ctx.fillStyle="black"; ctx.fillRect(0,0,200,400);
+            board.forEach((r,y)=>r.forEach((v,x)=>{if(v){ctx.fillStyle=v; ctx.fillRect(x*20,y*20,19,19);}}));
+            ctx.fillStyle=curColor; cur.forEach((r,y)=>r.forEach((v,x)=>{if(v)ctx.fillRect((curP.x+x)*20,(curP.y+y)*20,19,19);}));
+        }
+
+        function die(m) {
+            lives--; updateStats();
+            if(lives <= 0) { alert("遊戲結束！總分: " + score); location.reload(); }
+            else { alert(m); resetSnake(); }
+        }
+    </script>
+</body>
+</html>
