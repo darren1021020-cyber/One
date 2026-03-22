@@ -22,7 +22,7 @@
             background-color: var(--case-yellow);
             width: 100vw; max-width: 480px; height: 100dvh;
             display: flex; flex-direction: column; align-items: center;
-            position: relative; box-shadow: inset 0 0 60px rgba(0,0,0,0.15);
+            position: relative;
         }
         .header-title { margin-top: 10px; font-size: 20px; font-weight: bold; letter-spacing: 5px; color: #111; }
 
@@ -31,7 +31,6 @@
             padding: 8px; border-radius: 8px; background: #222; display: flex; flex-direction: column; position: relative;
         }
 
-        /* 螢幕變長：高度調整為 460px */
         .lcd-display {
             background: var(--lcd-bg); width: 100%; height: 460px; position: relative;
             box-shadow: inset 4px 4px 12px rgba(0,0,0,0.4); border: 2px solid #7a8a64;
@@ -40,8 +39,8 @@
         canvas { width: 100%; height: 100%; image-rendering: pixelated; }
 
         .stats-panel {
-            position: absolute; right: 10px; top: 10px; font-size: 13px; color: #1a1a1a;
-            text-align: right; font-weight: bold; line-height: 1.4; z-index: 10;
+            position: absolute; left: 10px; top: 10px; font-size: 13px; color: #1a1a1a;
+            text-align: left; font-weight: bold; line-height: 1.4; z-index: 10;
         }
 
         .controller-section { 
@@ -52,7 +51,6 @@
         .d-pad { 
             display: grid; grid-template-columns: repeat(3, 62px); grid-template-rows: repeat(3, 62px); 
             gap: 6px; align-self: center; justify-self: center;
-            margin-top: 10px;
         }
         .btn-blue {
             background: radial-gradient(circle, var(--btn-blue) 30%, var(--btn-blue-dark) 100%);
@@ -85,14 +83,17 @@
         <div class="lcd-display">
             <div id="stats-ui" class="stats-panel hidden">
                 HI:<span id="hi">0</span><br>
-                SCORE:<span id="sc">0</span><br>
+                SC:<span id="sc">0</span><br>
                 LIFE:<span id="lives">3</span>
+            </div>
+            <div id="msg-ui" class="ui-overlay hidden">
+                <h2 id="msg-text" style="color:#222;">GAME OVER</h2>
+                <button class="menu-btn" onclick="location.reload()">重新開始</button>
             </div>
             <div id="menu-ui" class="ui-overlay">
                 <h2 style="margin-bottom:15px; color:#222;">Darren 遊戲</h2>
                 <button class="menu-btn" onclick="startGame('tetris')">經典俄羅斯</button>
                 <button class="menu-btn" style="background:#444" onclick="startGame('snake')">經典貪吃蛇</button>
-                <p style="font-size:10px; margin-top:8px; color:#444;">點擊按鈕自動全螢幕</p>
             </div>
             <canvas id="gc"></canvas>
         </div>
@@ -122,7 +123,7 @@
 <script>
     function toggleFullScreen() {
         const docEl = window.document.documentElement;
-        const request = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
+        const request = docEl.requestFullscreen || docEl.webkitRequestFullScreen || docEl.mozRequestFullScreen || docEl.msRequestFullscreen;
         if (request) request.call(docEl);
     }
 
@@ -134,7 +135,7 @@
     const canvas = document.getElementById('gc');
     const ctx = canvas.getContext('2d');
     let gameLoop, mode, score=0, hiScore=0, lives=3, isPaused=false, speed=500;
-    const COLS = 10, ROWS = 20; // 增加行數配合長螢幕
+    const COLS = 10, ROWS = 20; 
     let board, cur, curP, curColor, snake, food, dir;
 
     const SHAPES = [
@@ -172,7 +173,6 @@
         const r = SHAPES[Math.floor(Math.random()*SHAPES.length)];
         cur = r.s; curColor = r.c; curP = {x:Math.floor(COLS/2)-1, y:0};
         if(collide()) handleDeath();
-        updateStats();
     }
 
     function collide() {
@@ -205,9 +205,14 @@
     }
 
     function handleDeath() {
-        lives--; updateStats();
-        if(lives > 0) { alert("Darren 剩餘生命：" + lives); resetRound(); }
-        else { alert("遊戲結束！"); location.reload(); }
+        lives--; 
+        updateStats();
+        clearInterval(gameLoop);
+        if(lives > 0) {
+            setTimeout(resetRound, 500); // 0.5秒後重啟這局
+        } else {
+            document.getElementById('msg-ui').classList.remove('hidden');
+        }
     }
 
     function draw() {
@@ -231,7 +236,7 @@
     }
 
     function handleInput(key) {
-        if(isPaused) return;
+        if(isPaused || lives <= 0) return;
         if(mode === 'tetris') {
             if(key==='left'){ curP.x--; if(collide())curP.x++; }
             if(key==='right'){ curP.x++; if(collide())curP.x--; }
@@ -249,8 +254,9 @@
     function togglePause() { isPaused = !isPaused; }
     function updateStats() {
         document.getElementById('sc').innerText = score;
-        document.getElementById('hi').innerText = hiScore;
         document.getElementById('lives').innerText = lives;
+        if(score > hiScore) hiScore = score;
+        document.getElementById('hi').innerText = hiScore;
     }
 </script>
 </body>
