@@ -10,6 +10,7 @@
             --case-yellow: #e4c541;
             --screen-frame: #000000;
             --lcd-bg: #9ead86;
+            --grid-line: rgba(0, 0, 0, 0.08);
             --btn-blue: #4a90e2;
             --btn-blue-dark: #1c5980;
             --btn-green: #44db5e;
@@ -22,7 +23,7 @@
             background-color: var(--case-yellow);
             width: 100vw; max-width: 480px; height: 100dvh;
             display: flex; flex-direction: column; align-items: center;
-            position: relative;
+            position: relative; box-shadow: inset 0 0 60px rgba(0,0,0,0.15);
         }
         .header-title { margin-top: 10px; font-size: 20px; font-weight: bold; letter-spacing: 5px; color: #111; }
 
@@ -84,11 +85,11 @@
             <div id="stats-ui" class="stats-panel hidden">
                 HI:<span id="hi">0</span><br>
                 SC:<span id="sc">0</span><br>
-                LIFE:<span id="lives">3</span>
+                <span id="life-area">LIFE:<span id="lives">3</span></span>
             </div>
             <div id="msg-ui" class="ui-overlay hidden">
-                <h2 id="msg-text" style="color:#222;">GAME OVER</h2>
-                <button class="menu-btn" onclick="location.reload()">重新開始</button>
+                <h2 style="color:#222; margin-bottom:10px;">GAME OVER</h2>
+                <button class="menu-btn" onclick="location.reload()">回主選單</button>
             </div>
             <div id="menu-ui" class="ui-overlay">
                 <h2 style="margin-bottom:15px; color:#222;">Darren 遊戲</h2>
@@ -149,15 +150,23 @@
         mode = m;
         document.getElementById('menu-ui').classList.add('hidden');
         document.getElementById('stats-ui').classList.remove('hidden');
+        // 如果是俄羅斯方塊，隱藏生命值顯示（因為只有一命）
+        if(mode === 'tetris') {
+            document.getElementById('life-area').style.display = 'none';
+        }
         canvas.width = 300; canvas.height = 600; 
-        lives = 3; score = 0;
+        lives = (mode === 'tetris') ? 1 : 3; 
+        score = 0;
         resetRound();
     }
 
     function resetRound() {
         isPaused = false;
-        if(mode === 'tetris') { speed = 500; board = Array(ROWS).fill().map(()=>Array(COLS).fill(0)); newPiece(); }
-        else { speed = 180; snake = [{x:5, y:10}, {x:5, y:11}, {x:5, y:12}]; dir = {x:0, y:-1}; spawnFood(); }
+        if(mode === 'tetris') { 
+            speed = 500; board = Array(ROWS).fill().map(()=>Array(COLS).fill(0)); newPiece(); 
+        } else { 
+            speed = 180; snake = [{x:5, y:10}, {x:5, y:11}, {x:5, y:12}]; dir = {x:0, y:-1}; spawnFood(); 
+        }
         if(gameLoop) clearInterval(gameLoop);
         gameLoop = setInterval(update, speed);
         updateStats();
@@ -208,9 +217,10 @@
         lives--; 
         updateStats();
         clearInterval(gameLoop);
-        if(lives > 0) {
-            setTimeout(resetRound, 500); // 0.5秒後重啟這局
+        if(lives > 0 && mode === 'snake') {
+            setTimeout(resetRound, 500); 
         } else {
+            // 俄羅斯方塊或生命耗盡，直接結束
             document.getElementById('msg-ui').classList.remove('hidden');
         }
     }
@@ -218,7 +228,7 @@
     function draw() {
         ctx.clearRect(0,0,canvas.width,canvas.height);
         const bw = canvas.width / COLS, bh = canvas.height / ROWS;
-        ctx.strokeStyle = "rgba(0, 0, 0, 0.08)";
+        ctx.strokeStyle = var('--grid-line');
         for(let x=0; x<=COLS; x++) { ctx.beginPath(); ctx.moveTo(x*bw, 0); ctx.lineTo(x*bw, canvas.height); ctx.stroke(); }
         for(let y=0; y<=ROWS; y++) { ctx.beginPath(); ctx.moveTo(0, y*bh); ctx.lineTo(canvas.width, y*bh); ctx.stroke(); }
         if(mode === 'tetris') {
@@ -254,7 +264,7 @@
     function togglePause() { isPaused = !isPaused; }
     function updateStats() {
         document.getElementById('sc').innerText = score;
-        document.getElementById('lives').innerText = lives;
+        document.getElementById('lives').innerText = (lives < 0) ? 0 : lives;
         if(score > hiScore) hiScore = score;
         document.getElementById('hi').innerText = hiScore;
     }
