@@ -29,6 +29,9 @@
         .ui-overlay { position: absolute; inset: 0; background: var(--lcd-bg); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 20; }
         .menu-btn { width: 180px; padding: 12px; margin: 8px; font-size: 18px; background: #333; color: #fff; border: none; border-radius: 10px; cursor: pointer; }
         
+        /* 操作說明樣式 */
+        .how-to-play { margin-top: 15px; font-size: 14px; color: #333; text-align: center; border-top: 1px solid rgba(0,0,0,0.1); padding-top: 10px; line-height: 1.5; }
+
         /* 控制器 */
         .controller { width: 100%; flex-grow: 1; display: grid; grid-template-columns: 1.1fr 0.9fr; padding: 5px; transform: scale(0.82); transform-origin: top; }
         .d-pad { display: grid; grid-template-columns: repeat(3, 60px); grid-template-rows: repeat(3, 60px); gap: 8px; justify-self: center; align-self: center; }
@@ -66,6 +69,14 @@
                     <h2 style="margin-bottom:10px;">選擇遊戲</h2>
                     <button class="menu-btn" onclick="startGame('tetris')">經典俄羅斯</button>
                     <button class="menu-btn" style="background:#444" onclick="startGame('snake')">經典貪吃蛇</button>
+                    
+                    <div class="how-to-play">
+                        <strong>【操作說明】</strong><br>
+                        方向鍵：移動 / 改變方位<br>
+                        旋轉鈕：方塊變形 / 蛇加速<br>
+                        紅色鈕：強制重新開始遊戲<br>
+                        綠色鈕：暫停或恢復遊戲
+                    </div>
                 </div>
                 <div id="over-ui" class="ui-overlay hidden">
                     <h2 style="margin-bottom:10px;">GAME OVER</h2>
