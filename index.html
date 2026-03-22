@@ -15,78 +15,76 @@
             --btn-green: #44db5e;
             --btn-red: #ff3b30;
         }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; outline: none; }
-        body { background-color: #000; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; font-family: 'ZCOOL KuaiLe', sans-serif; }
+        /* 禁止頁面捲動與縮放 */
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; outline: none; touch-action: manipulation; }
+        body { background-color: #000; display: flex; justify-content: center; align-items: center; height: 100dvh; overflow: hidden; font-family: 'ZCOOL KuaiLe', sans-serif; }
 
         .game-console {
             background-color: var(--case-yellow);
-            width: 100%; max-width: 480px; height: 100vh;
+            width: 100vw; max-width: 480px; height: 100dvh;
             display: flex; flex-direction: column; align-items: center;
             position: relative; box-shadow: inset 0 0 60px rgba(0,0,0,0.15);
         }
-        .header-title { margin-top: 15px; font-size: 22px; font-weight: bold; letter-spacing: 5px; color: #111; }
+        .header-title { margin-top: 10px; font-size: 20px; font-weight: bold; letter-spacing: 5px; color: #111; }
 
         .screen-area {
-            width: 92%; margin-top: 10px; border: 12px solid var(--screen-frame);
-            padding: 10px; border-radius: 8px; background: #222; display: flex; flex-direction: column; position: relative;
+            width: 90%; margin-top: 10px; border: 10px solid var(--screen-frame);
+            padding: 8px; border-radius: 8px; background: #222; display: flex; flex-direction: column; position: relative;
         }
 
         .lcd-display {
-            background: var(--lcd-bg); width: 100%; height: 440px; position: relative;
+            background: var(--lcd-bg); width: 100%; height: 400px; position: relative;
             box-shadow: inset 4px 4px 12px rgba(0,0,0,0.4); border: 2px solid #7a8a64;
         }
         canvas { width: 100%; height: 100%; image-rendering: pixelated; }
 
-        .stats-panel {
-            position: absolute; right: 10px; top: 10px; font-size: 14px; color: #1a1a1a;
-            text-align: right; font-weight: bold; line-height: 1.6; z-index: 10;
+        /* 控制區稍微縮小以適應 Chrome */
+        .controller-section { 
+            width: 100%; flex-grow: 1; display: grid; grid-template-columns: 1.1fr 0.9fr; 
+            padding: 10px; transform: scale(0.95); transform-origin: top;
         }
-
-        .controller-section { width: 100%; flex-grow: 1; display: grid; grid-template-columns: 1.1fr 0.9fr; padding: 10px 15px; }
         
         .d-pad { 
-            display: grid; grid-template-columns: repeat(3, 65px); grid-template-rows: repeat(3, 65px); 
-            gap: 6px; align-self: center; justify-self: center;
-            margin-top: 45px; 
+            display: grid; grid-template-columns: repeat(3, 60px); grid-template-rows: repeat(3, 60px); 
+            gap: 5px; align-self: center; justify-self: center;
         }
         .btn-blue {
             background: radial-gradient(circle, var(--btn-blue) 30%, var(--btn-blue-dark) 100%);
-            border-radius: 50%; border: 4px solid #154666; box-shadow: 0 6px 0 #0d2d42; cursor: pointer;
+            border-radius: 50%; border: 4px solid #154666; box-shadow: 0 5px 0 #0d2d42; cursor: pointer;
         }
         .btn-blue:active { transform: translateY(3px); box-shadow: 0 2px 0 #0d2d42; }
 
-        .action-pad { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; }
-        .small-btns { display: flex; gap: 15px; }
-        .s-btn { width: 42px; height: 42px; border-radius: 50%; border: 3px solid #222; cursor: pointer; box-shadow: 0 4px 0 #333; }
+        .action-pad { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px; }
+        .small-btns { display: flex; gap: 12px; }
+        .s-btn { width: 38px; height: 38px; border-radius: 50%; border: 3px solid #222; cursor: pointer; box-shadow: 0 3px 0 #333; }
         .btn-red { background: var(--btn-red); } .btn-green { background: var(--btn-green); }
 
         .rotate-btn {
-            width: 125px; height: 125px; border-radius: 50%;
+            width: 110px; height: 110px; border-radius: 50%;
             background: radial-gradient(circle, var(--btn-blue) 30%, var(--btn-blue-dark) 100%);
-            border: 6px solid #154666; color: white; font-weight: bold; font-size: 22px; box-shadow: 0 8px 0 #0d2d42; cursor: pointer;
+            border: 6px solid #154666; color: white; font-weight: bold; font-size: 20px; box-shadow: 0 7px 0 #0d2d42; cursor: pointer;
         }
-        .btn-label { font-size: 11px; color: #111; font-weight: bold; margin-top: 10px; text-align: center;}
+        .btn-label { font-size: 10px; color: #111; font-weight: bold; margin-top: 5px; text-align: center;}
 
         .ui-overlay { position: absolute; inset: 0; background: var(--lcd-bg); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 20; }
-        .menu-btn { width: 180px; padding: 15px; margin: 10px; font-size: 20px; background: #333; color: #fff; border: none; border-radius: 10px; cursor: pointer; }
+        .menu-btn { width: 180px; padding: 12px; margin: 8px; font-size: 18px; background: #333; color: #fff; border: none; border-radius: 10px; cursor: pointer; }
         .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
-<div class="game-console">
+<div class="game-console" id="console">
     <div class="header-title">▪ Darren 遊戲 ▪</div>
     <div class="screen-area">
         <div class="lcd-display">
             <div id="stats-ui" class="stats-panel hidden">
-                最高紀錄<br><span id="hi">0</span><br>
-                得分<br><span id="sc">0</span><br>
-                生命<br><span id="lives">3</span>
+                HI:<span id="hi">0</span> SCORE:<span id="sc">0</span> LIFE:<span id="lives">3</span>
             </div>
             <div id="menu-ui" class="ui-overlay">
                 <h2 style="margin-bottom:20px; color:#222;">Darren 遊戲</h2>
-                <button class="menu-btn" onclick="initGame('tetris')">經典俄羅斯</button>
-                <button class="menu-btn" style="background:#444" onclick="initGame('snake')">經典貪吃蛇</button>
+                <button class="menu-btn" onclick="startGame('tetris')">經典俄羅斯</button>
+                <button class="menu-btn" style="background:#444" onclick="startGame('snake')">經典貪吃蛇</button>
+                <p style="font-size:10px; margin-top:10px; color:#555;">點擊按鈕將進入全螢幕</p>
             </div>
             <canvas id="gc"></canvas>
         </div>
@@ -96,7 +94,7 @@
         <div class="d-pad">
             <div></div><button class="btn-blue" onclick="handleInput('up')"></button><div></div>
             <button class="btn-blue" onclick="handleInput('left')"></button>
-            <div style="display:flex; align-items:center; justify-content:center; color:#333; font-size:12px; font-weight:bold;">MOVE</div>
+            <div style="display:flex; align-items:center; justify-content:center; color:#333; font-size:10px; font-weight:bold;">MOVE</div>
             <button class="btn-blue" onclick="handleInput('right')"></button>
             <div></div><button class="btn-blue" onclick="handleInput('down')"></button><div></div>
         </div>
@@ -114,6 +112,22 @@
 </div>
 
 <script>
+    // 全螢幕觸發函數
+    function toggleFullScreen() {
+        const doc = window.document;
+        const docEl = doc.documentElement;
+        const requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
+        if (requestFullScreen) {
+            requestFullScreen.call(docEl);
+        }
+    }
+
+    function startGame(mode) {
+        toggleFullScreen(); // 在點擊時進入全螢幕
+        initGame(mode);
+    }
+
+    // --- 以下為原有的遊戲邏輯 (略作微調以適應佈局) ---
     const canvas = document.getElementById('gc');
     const ctx = canvas.getContext('2d');
     let gameLoop, mode, score=0, hiScore=0, lives=3, isPaused=false, speed=500;
@@ -138,11 +152,8 @@
 
     function resetRound() {
         isPaused = false;
-        if(mode === 'tetris') {
-            speed = 500; board = Array(ROWS).fill().map(()=>Array(COLS).fill(0)); newPiece();
-        } else {
-            speed = 180; snake = [{x:5, y:8}, {x:5, y:9}, {x:5, y:10}]; dir = {x:0, y:-1}; spawnFood();
-        }
+        if(mode === 'tetris') { speed = 500; board = Array(ROWS).fill().map(()=>Array(COLS).fill(0)); newPiece(); }
+        else { speed = 180; snake = [{x:5, y:8}, {x:5, y:9}, {x:5, y:10}]; dir = {x:0, y:-1}; spawnFood(); }
         if(gameLoop) clearInterval(gameLoop);
         gameLoop = setInterval(update, speed);
         updateStats();
@@ -192,33 +203,28 @@
 
     function handleDeath() {
         lives--; updateStats();
-        if(lives > 0) { alert("Darren 加油！剩餘生命：" + lives); resetRound(); }
-        else { alert("Darren 遊戲結束！最終得分：" + score); location.reload(); }
+        if(lives > 0) { alert("Darren 加油！剩餘：" + lives); resetRound(); }
+        else { alert("遊戲結束！"); location.reload(); }
     }
 
     function draw() {
         ctx.clearRect(0,0,canvas.width,canvas.height);
         const bw = canvas.width / COLS, bh = canvas.height / ROWS;
-
-        // 輔助網格
-        ctx.strokeStyle = "rgba(0, 0, 0, 0.1)";
+        ctx.strokeStyle = "rgba(0, 0, 0, 0.08)";
         for(let x=0; x<=COLS; x++) { ctx.beginPath(); ctx.moveTo(x*bw, 0); ctx.lineTo(x*bw, canvas.height); ctx.stroke(); }
         for(let y=0; y<=ROWS; y++) { ctx.beginPath(); ctx.moveTo(0, y*bh); ctx.lineTo(canvas.width, y*bh); ctx.stroke(); }
-
         if(mode === 'tetris') {
-            board.forEach((r,y)=>r.forEach((v,x)=>{ if(v){ drawBlock(x, y, v, bw, bh); } }));
-            cur.forEach((r,y)=>r.forEach((v,x)=>{ if(v){ drawBlock(curP.x+x, curP.y+y, curColor, bw, bh); } }));
+            board.forEach((r,y)=>r.forEach((v,x)=>{ if(v) drawBlock(x,y,v,bw,bh); }));
+            cur.forEach((r,y)=>r.forEach((v,x)=>{ if(v) drawBlock(curP.x+x, curP.y+y, curColor, bw, bh); }));
         } else {
             snake.forEach(s => drawBlock(s.x, s.y, "#222", bw, bh));
             drawBlock(food.x, food.y, "#ff3b30", bw, bh);
         }
     }
 
-    function drawBlock(x, y, color, w, h) {
-        ctx.fillStyle = color;
-        ctx.fillRect(x*w + 1, y*h + 1, w - 2, h - 2);
-        ctx.strokeStyle = "rgba(255, 255, 255, 0.2)";
-        ctx.strokeRect(x*w + 1, y*h + 1, w - 2, h - 2);
+    function drawBlock(x,y,c,w,h) {
+        ctx.fillStyle=c; ctx.fillRect(x*w+1,y*h+1,w-2,h-2);
+        ctx.strokeStyle="rgba(255,255,255,0.2)"; ctx.strokeRect(x*w+1,y*h+1,w-2,h-2);
     }
 
     function handleInput(key) {
@@ -227,10 +233,7 @@
             if(key==='left'){ curP.x--; if(collide())curP.x++; }
             if(key==='right'){ curP.x++; if(collide())curP.x--; }
             if(key==='down'){ curP.y++; if(collide())curP.y--; }
-            if(key==='rotate'||key==='up'){ 
-                let n=cur[0].map((_,i)=>cur.map(r=>r[i]).reverse()); 
-                let p=cur; cur=n; if(collide())cur=p; 
-            }
+            if(key==='rotate'||key==='up'){ let n=cur[0].map((_,i)=>cur.map(r=>r[i]).reverse()); let p=cur; cur=n; if(collide())cur=p; }
         } else {
             if(key==='up' && dir.y===0) dir = {x:0, y:-1};
             if(key==='down' && dir.y===0) dir = {x:0, y:1};
@@ -242,7 +245,6 @@
 
     function togglePause() { isPaused = !isPaused; }
     function updateStats() {
-        if(score > hiScore) hiScore = score;
         document.getElementById('sc').innerText = score;
         document.getElementById('hi').innerText = hiScore;
         document.getElementById('lives').innerText = lives;
