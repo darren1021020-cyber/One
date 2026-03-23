@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Darren 終極遊戲基地</title>
     <link href="https://fonts.googleapis.com" rel="stylesheet">
-    <!-- Firebase SDK (保留你原本的設定) -->
     <script src="https://www.gstatic.com"></script>
     <script src="https://www.gstatic.com"></script>
     <style>
@@ -14,12 +13,10 @@
         body { background: #000; display: flex; justify-content: center; align-items: center; height: 100dvh; overflow: hidden; font-family: 'ZCOOL KuaiLe', sans-serif; color: white; }
         .hidden { display: none !important; }
 
-        /* 門面 */
         #main-menu { display: flex; flex-direction: column; align-items: center; gap: 20px; z-index: 100; }
         .portal-btn { width: 260px; padding: 22px; font-size: 24px; border: none; border-radius: 15px; cursor: pointer; color: white; font-family: 'ZCOOL KuaiLe'; box-shadow: 0 6px 0 #222; transition: 0.1s; }
         .portal-btn:active { transform: translateY(4px); box-shadow: none; }
 
-        /* 遊戲機 */
         .game-console { background: var(--case-yellow); width: 100vw; max-width: 480px; height: 100dvh; display: flex; flex-direction: column; align-items: center; position: relative; color: #000; }
         .header-title { margin: 8px 0; font-size: 18px; font-weight: bold; letter-spacing: 5px; }
         .screen-area { width: 92%; border: 10px solid var(--screen-frame); padding: 5px; border-radius: 8px; background: #222; }
@@ -30,19 +27,17 @@
         .ui-overlay { position: absolute; inset: 0; background: var(--lcd-bg); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 20; }
         .menu-btn { width: 180px; padding: 12px; margin: 8px; font-size: 18px; background: #333; color: #fff; border: none; border-radius: 10px; cursor: pointer; }
         
-        /* 控制器 */
         .controller { width: 100%; flex-grow: 1; display: grid; grid-template-columns: 1.1fr 0.9fr; padding: 5px; transform: scale(0.85); transform-origin: top; }
         .d-pad { display: grid; grid-template-columns: repeat(3, 60px); grid-template-rows: repeat(3, 60px); gap: 8px; justify-self: center; align-self: center; }
         .btn-direction { background: radial-gradient(circle, var(--btn-blue) 30%, var(--btn-blue-dark) 100%); border-radius: 50%; border: 4px solid #154666; box-shadow: 0 5px 0 #0d2d42; }
-        .btn-direction:active { transform: translateY(3px); box-shadow: 0 2px 0 #0d2d42; }
         .rotate-btn { width: 105px; height: 105px; border-radius: 50%; background: radial-gradient(circle, var(--btn-blue) 30%, var(--btn-blue-dark) 100%); border: 6px solid #154666; color: #fff; font-size: 20px; box-shadow: 0 7px 0 #0d2d42; cursor: pointer; }
 
-        /* 雲端區樣式 */
         #gallery-section { width: 100%; height: 100dvh; background: #000; overflow-y: auto; padding: 20px; text-align: center; position: fixed; top: 0; left: 0; z-index: 200; }
         .upload-box { background: #1a1a1a; padding: 20px; border-radius: 20px; margin: 20px 0; border: 2px dashed #444; }
         .upload-label { background: #FFD700; color: #000; padding: 12px 25px; border-radius: 10px; cursor: pointer; font-weight: bold; display: inline-block; }
         .download-card { background: #1a1a1a; margin-bottom: 25px; padding: 15px; border-radius: 15px; border: 1px solid #333; }
-        .download-card img { width: 100%; max-width: 280px; border-radius: 10px; margin: 10px 0; }
+        .download-card img { width: 100%; max-width: 280px; border-radius: 10px; }
+        .delete-btn { background: #ff3b30; color: white; border: none; padding: 6px 12px; border-radius: 5px; cursor: pointer; margin-top: 10px; }
         .back-btn { position: fixed; top: 12px; left: 12px; background: #ff3b30; color: white; padding: 10px 15px; border: none; border-radius: 8px; z-index: 300; cursor: pointer; font-family: 'ZCOOL KuaiLe'; }
     </style>
 </head>
@@ -56,7 +51,6 @@
         <button class="portal-btn" style="background: #2196F3;" onclick="showSection('gallery')">🖼️ 作品雲端區</button>
     </div>
 
-    <!-- 遊戲機區塊 -->
     <div id="game-section" class="game-console hidden">
         <div class="header-title">▪ Darren 遊戲 ▪</div>
         <div class="screen-area">
@@ -93,119 +87,134 @@
         </div>
     </div>
 
-    <!-- 雲端作品區塊 -->
     <div id="gallery-section" class="hidden">
         <h1 style="margin-top: 50px;">雲端作品集</h1>
         <div class="upload-box">
-            <p style="margin-bottom:12px; color:#aaa;">照片將永久儲存在 ImgBB</p>
             <label for="file-input" class="upload-label">➕ 選擇作品上傳</label>
-            <input type="file" id="file-input" accept="image/*" style="display:none" onchange="handleUpload(this)">
+            <input type="file" id="file-input" accept="image/*" style="display:none" onchange="uploadToCloud(this)">
         </div>
-        <div id="image-list">
-            <!-- 這裡會顯示上傳後的照片 -->
-        </div>
+        <div id="gallery-list"></div>
     </div>
 
     <script>
+        const IMGBB_KEY = '74c0d1b38e2a215ca8291218ccecb1e4';
+        const firebaseConfig = { apiKey: "AIzaSyADMWPjGyJfLuAxHEetHi3pNe56pCunpQk", authDomain: "game-32947.firebaseapp.com", projectId: "game-32947", storageBucket: "game-32947.firebasestorage.app", messagingSenderId: "267668983459", appId: "1:267668983459:web:46d538524d46058ec2b916" };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
         const canvas = document.getElementById('gc');
         const ctx = canvas.getContext('2d');
-        let gameLoop;
-        window.isPaused = false;
+        const GRID_SIZE = 20; // 每個格子的大小
+        let gameLoop, score = 0;
         window.currentGame = '';
+        window.isPaused = false;
 
-        // 小恐龍參數
-        let dino = { x: 30, y: 0, v: 0, w: 20, h: 25, jumping: false };
-        let obstacles = [];
-        let dinoTimer = 0;
+        let snake = [], apple = {}, snakeDir = 'RIGHT';
+        let dino = { x: 30, y: 0, v: 0, jumping: false }, obstacles = [];
 
         function showSection(id) {
             document.getElementById('main-menu').classList.add('hidden');
             document.getElementById(id + '-section').classList.remove('hidden');
             document.getElementById('global-back').classList.remove('hidden');
-            if(id === 'game') {
-                canvas.width = canvas.clientWidth;
-                canvas.height = canvas.clientHeight;
+            if(id === 'game') { canvas.width = 200; canvas.height = 400; drawGrid(); }
+            if(id === 'gallery') loadGallery();
+        }
+
+        // 繪製背景格子
+        function drawGrid() {
+            ctx.strokeStyle = "rgba(0, 0, 0, 0.05)";
+            ctx.lineWidth = 1;
+            for (let x = 0; x <= canvas.width; x += GRID_SIZE) {
+                ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
+            }
+            for (let y = 0; y <= canvas.height; y += GRID_SIZE) {
+                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
             }
         }
 
-        // 啟動遊戲
         function startGame(type) {
             window.currentGame = type;
             document.getElementById('game-start-ui').classList.add('hidden');
             document.getElementById('stats-ui').classList.remove('hidden');
+            score = 0; document.getElementById('sc').innerText = '0';
+            clearInterval(gameLoop);
             
-            if(type === 'dino') {
-                dino = { x: 30, y: canvas.height * 0.8 - 25, v: 0, w: 20, h: 25, jumping: false };
-                obstacles = [];
-                dinoTimer = 0;
-                gameLoop = setInterval(updateDino, 1000/60);
-            } else if (type === 'snake') {
-                // 你原本的貪吃蛇邏輯...
-            } else if (type === 'tetris') {
-                // 你原本的俄羅斯方塊邏輯...
-            }
+            if(type === 'snake') { snake = [{x:5,y:5}]; apple={x:10,y:10}; snakeDir='RIGHT'; gameLoop=setInterval(updateSnake, 150); }
+            if(type === 'dino') { dino={x:30,y:300,v:0,jumping:false}; obstacles=[]; gameLoop=setInterval(updateDino, 20); }
+            if(type === 'tetris') { score = 0; gameLoop=setInterval(() => { ctx.clearRect(0,0,200,400); drawGrid(); ctx.fillText("俄羅斯方塊開發中", 50, 50); }, 100); }
         }
 
-        // 小恐龍主循環
+        function updateSnake() {
+            if(window.isPaused) return;
+            let head = {...snake[0]};
+            if(snakeDir==='UP') head.y--; if(snakeDir==='DOWN') head.y++; if(snakeDir==='LEFT') head.x--; if(snakeDir==='RIGHT') head.x++;
+            
+            if(head.x<0||head.x>=canvas.width/GRID_SIZE||head.y<0||head.y>=canvas.height/GRID_SIZE) return gameOver();
+            snake.unshift(head);
+            if(head.x===apple.x && head.y===apple.y) { 
+                score++; 
+                apple={x:Math.floor(Math.random()*(canvas.width/GRID_SIZE)), y:Math.floor(Math.random()*(canvas.height/GRID_SIZE))}; 
+            } else { snake.pop(); }
+            
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            drawGrid();
+            ctx.fillStyle='#222'; 
+            snake.forEach(s=>ctx.fillRect(s.x*GRID_SIZE, s.y*GRID_SIZE, GRID_SIZE-1, GRID_SIZE-1));
+            ctx.fillStyle='#ff3b30'; ctx.fillRect(apple.x*GRID_SIZE, apple.y*GRID_SIZE, GRID_SIZE-1, GRID_SIZE-1);
+            document.getElementById('sc').innerText = score;
+        }
+
         function updateDino() {
-            if (window.isPaused) return;
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            const groundY = canvas.height * 0.8;
-
-            dino.v += 0.6; 
-            dino.y += dino.v;
-            if (dino.y > groundY - dino.h) {
-                dino.y = groundY - dino.h;
-                dino.v = 0;
-                dino.jumping = false;
-            }
-
-            dinoTimer++;
-            if (dinoTimer % 100 === 0) obstacles.push({ x: canvas.width, w: 15, h: 20 + Math.random() * 20 });
-
-            ctx.fillStyle = '#222';
-            ctx.fillRect(dino.x, dino.y, dino.w, dino.h);
-            ctx.beginPath(); ctx.moveTo(0, groundY); ctx.lineTo(canvas.width, groundY); ctx.stroke();
-
-            for (let i = obstacles.length - 1; i >= 0; i--) {
-                obstacles[i].x -= 4;
-                ctx.fillRect(obstacles[i].x, groundY - obstacles[i].h, obstacles[i].w, obstacles[i].h);
-                if (dino.x < obstacles[i].x + obstacles[i].w && dino.x + dino.w > obstacles[i].x && dino.y + dino.h > groundY - obstacles[i].h) {
-                    clearInterval(gameLoop);
-                    document.getElementById('over-ui').classList.remove('hidden');
-                }
-                if (obstacles[i].x < -20) { obstacles.splice(i, 1); }
+            if(window.isPaused) return;
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            drawGrid();
+            dino.v += 0.6; dino.y += dino.v;
+            if(dino.y > 320) { dino.y = 320; dino.v = 0; dino.jumping = false; }
+            if(Math.random()<0.02) obstacles.push({x:200, w:15, h:20+Math.random()*20});
+            ctx.fillStyle='#222'; ctx.fillRect(dino.x, dino.y, 20, 25);
+            ctx.fillRect(0, 345, 200, 2);
+            for(let i=obstacles.length-1; i>=0; i--) {
+                obstacles[i].x -= 4; ctx.fillRect(obstacles[i].x, 345-obstacles[i].h, obstacles[i].w, obstacles[i].h);
+                if(dino.x<obstacles[i].x+obstacles[i].w && dino.x+20>obstacles[i].x && dino.y+25>345-obstacles[i].h) return gameOver();
+                if(obstacles[i].x<-20) { obstacles.splice(i,1); score++; document.getElementById('sc').innerText = score; }
             }
         }
 
-        // 按鈕控制
         function handle(action) {
-            if (window.currentGame === 'dino') {
-                if ((action === 'up' || action === 'rotate') && !dino.jumping) {
-                    dino.v = -10;
-                    dino.jumping = true;
-                }
+            if(window.currentGame==='snake') {
+                if(action==='up'&&snakeDir!=='DOWN') snakeDir='UP'; if(action==='down'&&snakeDir!=='UP') snakeDir='DOWN';
+                if(action==='left'&&snakeDir!=='RIGHT') snakeDir='LEFT'; if(action==='right'&&snakeDir!=='LEFT') snakeDir='RIGHT';
             }
-            // 這裡可以放你原本的俄羅斯/蛇 handle 邏輯
+            if(window.currentGame==='dino' && (action==='up'||action==='rotate') && !dino.jumping) {
+                dino.v = -10; dino.jumping = true;
+            }
         }
 
-        // 雲端上傳邏輯 (ImgBB 範例)
-        async function handleUpload(input) {
-            if (!input.files || !input.files[0]) return;
-            const file = input.files[0];
-            alert('正在上傳作品...');
-            
-            // 此處應放入你原本的 ImgBB API Key 與 Firebase 儲存邏輯
-            // 以下為示意顯示
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const card = document.createElement('div');
-                card.className = 'download-card';
-                card.innerHTML = `<img src="${e.target.result}"><p>作品已儲存</p>`;
-                document.getElementById('image-list').prepend(card);
-            }
-            reader.readAsDataURL(file);
+        function gameOver() { clearInterval(gameLoop); document.getElementById('over-ui').classList.remove('hidden'); }
+
+        async function uploadToCloud(input) {
+            if(!input.files[0]) return;
+            const body = new FormData(); body.append('image', input.files[0]);
+            try {
+                const res = await fetch(`https://api.imgbb.com{IMGBB_KEY}`, {method:'POST', body});
+                const data = await res.json();
+                await db.collection('gallery').add({url: data.data.url, time: Date.now()});
+                loadGallery();
+            } catch (e) { alert('上傳失敗'); }
         }
+
+        async function loadGallery() {
+            const list = document.getElementById('gallery-list'); list.innerHTML = '載入中...';
+            const snap = await db.collection('gallery').orderBy('time','desc').get();
+            list.innerHTML = '';
+            snap.forEach(doc => {
+                const div = document.createElement('div'); div.className = 'download-card';
+                div.innerHTML = `<img src="${doc.data().url}"><br><button class="delete-btn" onclick="deleteImg('${doc.id}')">刪除</button>`;
+                list.appendChild(div);
+            });
+        }
+        async function deleteImg(id) { if(confirm('確定要刪除嗎？')) { await db.collection('gallery').doc(id).delete(); loadGallery(); } }
     </script>
 </body>
 </html>
